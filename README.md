@@ -17,8 +17,8 @@ This project provides a system for summarising multi-party dialogues into concis
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/ravindrawijenayake/rgu_discoai.git
-   cd rgu_discoai
+   git clone https://github.com/ravindrawijenayake/rgu_dialogue.git
+   cd rgu_dialogue
    ```
 
 2. **Install dependencies:**

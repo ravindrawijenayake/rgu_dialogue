@@ -3,6 +3,7 @@ from classify import classify_utterances
 from collections import Counter, defaultdict
 import os
 import google.generativeai as genai
+import streamlit as st
 
 # Function to generate a summary of the dialogue transcript
 def generate_summary(transcript):
@@ -81,7 +82,7 @@ def generate_summary(transcript):
 
     # For long dialogues, use Google Gemini LLM for summarization
     
-    api_key = os.getenv('GOOGLE_API_KEY')
+    api_key = os.getenv('GOOGLE_API_KEY', st.secrets.get("GOOGLE_API_KEY"))
     if not api_key:
         return "[Gemini summarization failed: GOOGLE_API_KEY environment variable not set.]"
     genai.configure(api_key=api_key)

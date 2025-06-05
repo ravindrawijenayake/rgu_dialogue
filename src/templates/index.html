@@ -1,0 +1,80 @@
+{#
+  This is a Flask/Jinja2 template. Jinja tags like {{ ... }} and {% ... %} are valid and may be flagged by some HTML linters or editors. You can safely ignore such warnings if using Flask.
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dialogue Analysis Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dialogue Analysis Platform</h1><h3>Created by Ravindra Wijenayake</h3>
+        <form method="post" enctype="multipart/form-data" id="dialogueForm">
+            <div class="input-section">
+                <label class="input-label">Paste transcript or upload file:</label>
+                <textarea name="transcript" placeholder="Paste your dialogue transcript here...">{{ transcript }}</textarea>
+                <input type="file" name="file">
+            </div>
+            <input type="submit" value="Analyse">
+            <button type="button" onclick="clearForm()">Clear</button>
+        </form>
+        <script>
+            function clearForm() {
+                document.querySelector('textarea[name="transcript"]').value = '';
+                document.querySelector('input[type="file"]').value = '';
+                window.location.href = window.location.pathname;
+            }
+        </script>
+        {% if transcript %}
+        <div class="dialogue-box">
+            <h2>Input Dialogue</h2>
+            <pre style="white-space:pre-wrap; word-break:break-word;">{{ transcript }}</pre>
+        </div>
+        {% endif %}
+        {% if utterances %}
+        <h2>Classified Utterances</h2>
+        <table>
+            <thead>
+            <tr><th>Speaker</th><th>Utterance</th><th>Dialogue Function</th><th>Confidence/Rationale</th></tr>
+            </thead>
+            <tbody>
+            {% for u in utterances %}
+            <tr>
+                <td>{{ u['speaker'] }}</td>
+                <td>{{ u['utterance'] }}</td>
+                <td>{{ u['function'] }}</td>
+                <td>
+                    {% if u['confidence'] %}
+                        <span class="{% if u['confidence'] >= 0.9 %}confidence-high{% elif u['confidence'] >= 0.6 %}confidence-medium{% else %}confidence-low{% endif %}">
+                            {{ u['confidence'] }}
+                        </span>
+                    {% elif u['rationale'] %}
+                        <span>{{ u['rationale'] }}</span>
+                    {% else %}-{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="summary">
+            <h2>Structured Summary</h2>
+            <p>{{ summary }}</p>
+        </div>
+        <div class="summary">
+            <h2>Dialogue Flow Diagram</h2>
+            <div class="mermaid">
+            {{ mermaid_diagram|safe }}
+            </div>
+        </div>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: true });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>

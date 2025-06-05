@@ -1,0 +1,4 @@
+spacy>=3.0.0
+google-generativeai>=1.19.0
+flask
+streamlit

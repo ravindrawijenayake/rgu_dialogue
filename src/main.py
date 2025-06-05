@@ -35,5 +35,4 @@ def index():
             mermaid_diagram = generate_mermaid_diagram(utterances)
     return render_template('index.html', transcript=transcript, utterances=utterances, summary=summary, mermaid_diagram=mermaid_diagram)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Remove app.run(debug=True) for Streamlit/production compatibility

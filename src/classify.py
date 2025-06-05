@@ -1,13 +1,6 @@
 import re
 import os
-import joblib
 
-
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'utterance_classifier.joblib')
-try:
-    model = joblib.load(MODEL_PATH)
-except Exception:
-    model = None
 
 nlp = None
 textcat = None

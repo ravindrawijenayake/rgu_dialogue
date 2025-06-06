@@ -47,7 +47,7 @@ st.divider()
 # --- Inject Custom CSS for Colorful UI ---
 st.markdown('''
     <style>
-    body { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
+    body { background: linear-gradient(120deg, #f6d378 0%, #fda085 100%); }
     .stApp { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
     .stButton>button { background-color: #4F8BF9; color: white; border-radius: 8px; border: none; margin-right: 8px; font-weight: bold; }
     .stButton>button:hover { background-color: #1B2845; color: #f6d365; }

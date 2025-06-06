@@ -107,6 +107,7 @@ The system uses rule-based heuristics to classify each utterance in the transcri
 ## Visualisation & Confidence
 
 - The web interface visualises the dialogue as a flow diagram using Mermaid.js.
+- The Streamlit app uses the `streamlit-mermaid` package to always render the dialogue flow visually as a diagram.
 - Each utterance is shown with a confidence score or rationale for its classification.
 
 ## Project Structure
@@ -119,6 +120,7 @@ src/
     classify.py
     main.py
     summarise.py
+    streamlit_app.py
     unclassified_utterances.log
     static/
         style.css
@@ -126,10 +128,12 @@ src/
         index.html
 ```
 
-- `main.py`: Entry point for running the summarisation.
+- `main.py`: Entry point for running the Flask web interface (for local or WSGI deployment).
+- `streamlit_app.py`: Entry point for the Streamlit web interface (for Streamlit Cloud or local Streamlit use).
 - `summarise.py`: Contains the summarisation logic (uses Google Gemini for long dialogues).
 - `classify.py`: Rule-based classification of utterances/dialogue acts.
-- `templates/`: Contains HTML templates for the web interface.
+- `templates/`: Contains HTML templates for the Flask web interface.
+- `static/`: Contains CSS for the Flask web interface.
 
 ## Security
 

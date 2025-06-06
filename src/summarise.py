@@ -81,8 +81,15 @@ def generate_summary(transcript):
         return summary.strip()
 
     # For long dialogues, use Google Gemini LLM for summarization
-    
-    api_key = os.getenv('GOOGLE_API_KEY', st.secrets.get("GOOGLE_API_KEY"))
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        try:
+            import streamlit as st
+            # Only use st.secrets if running under Streamlit (check if running in Streamlit context)
+            if hasattr(st, '_is_running_with_streamlit') and st._is_running_with_streamlit:
+                api_key = st.secrets["GOOGLE_API_KEY"]
+        except Exception:
+            pass
     if not api_key:
         return "[Gemini summarization failed: GOOGLE_API_KEY environment variable not set.]"
     genai.configure(api_key=api_key)

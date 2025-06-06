@@ -25,40 +25,85 @@ def generate_mermaid_diagram(utterances):
     return diagram
 
 st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
-st.title("Dialogue Classifier & Summariser")
-st.write("""
+
+# --- Session State for Inputs/Outputs ---
+if 'transcript' not in st.session_state:
+    st.session_state['transcript'] = ''
+if 'uploaded_file' not in st.session_state:
+    st.session_state['uploaded_file'] = None
+if 'utterances' not in st.session_state:
+    st.session_state['utterances'] = None
+if 'summary' not in st.session_state:
+    st.session_state['summary'] = ''
+if 'mermaid_diagram' not in st.session_state:
+    st.session_state['mermaid_diagram'] = ''
+
+st.title("🗣️ Dialogue Analysis Platform")
+st.markdown("""
 Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.
 """)
+st.divider()
 
 with st.form("transcript_form"):
-    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-    transcript_text = st.text_area("Or paste transcript here", height=200)
-    submitted = st.form_submit_button("Process Transcript")
+    col1, col2 = st.columns([2,1])
+    with col1:
+        uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+    with col2:
+        clear_clicked = st.form_submit_button("Clear", use_container_width=True)
+    transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
+    submitted = st.form_submit_button("Process Transcript", use_container_width=True)
 
-transcript = ""
+# --- Clear Button Functionality ---
+if 'clear_clicked' not in st.session_state:
+    st.session_state['clear_clicked'] = False
+if clear_clicked:
+    st.session_state['transcript'] = ''
+    st.session_state['uploaded_file'] = None
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = ''
+    st.session_state['mermaid_diagram'] = ''
+    st.session_state['clear_clicked'] = True
+    st.experimental_rerun()
+else:
+    st.session_state['clear_clicked'] = False
+
+# --- Process Transcript ---
 if submitted:
     if uploaded_file is not None:
         transcript = uploaded_file.read().decode("utf-8")
+        st.session_state['transcript'] = transcript
     elif transcript_text.strip():
         transcript = transcript_text
+        st.session_state['transcript'] = transcript
     else:
         st.warning("Please upload a file or paste transcript text.")
+        transcript = ''
+    if transcript.strip():
+        utterances = classify_utterances(transcript)
+        summary = generate_summary(transcript)
+        mermaid_diagram = generate_mermaid_diagram(utterances)
+        st.session_state['utterances'] = utterances
+        st.session_state['summary'] = summary
+        st.session_state['mermaid_diagram'] = mermaid_diagram
+else:
+    transcript = st.session_state['transcript']
+    utterances = st.session_state['utterances']
+    summary = st.session_state['summary']
+    mermaid_diagram = st.session_state['mermaid_diagram']
 
-if transcript.strip():
-    utterances = classify_utterances(transcript)
-    summary = generate_summary(transcript)
-    mermaid_diagram = generate_mermaid_diagram(utterances)
-
+# --- Output Section ---
+if transcript.strip() and utterances is not None:
+    st.divider()
     st.subheader("Classified Utterances")
     if utterances:
-        st.dataframe(utterances)
+        st.dataframe(utterances, use_container_width=True)
     else:
         st.info("No utterances classified.")
-
+    st.divider()
     st.subheader("Summary")
     st.write(summary)
-
+    st.divider()
     st.subheader("Dialogue Flow (Mermaid Diagram)")
     render_mermaid(mermaid_diagram)
 else:
-    st.info("Awaiting transcript input.")
+    st.info("Awaiting transcript input. Upload a file or paste text, then click 'Process Transcript'.")

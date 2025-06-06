@@ -24,12 +24,13 @@ def generate_mermaid_diagram(utterances):
 
 # --- Page Config ---
 st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
+st.text("Created by Ravindra Wijenayake - for RGU DiSCoAI")
 
 # --- Custom CSS ---
 st.markdown('''
     <style>
     body, .stApp {
-        background: #f4f4f9;
+        background: #34def4;
         font-family: 'Segoe UI', sans-serif;
     }
     .main-title {
@@ -39,8 +40,8 @@ st.markdown('''
         padding-bottom: 0.5rem;
     }
     .section {
-        background-color: #ffffff;
-        border: 1px solid #d4d4d4;
+        background-color: #1286f3;
+        border: 1px solid #1d1111;
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 24px;
@@ -48,7 +49,7 @@ st.markdown('''
     }
     .stTextArea textarea, .stFileUploader, .stDataFrame, .stAlert {
         border-radius: 10px;
-        background-color: #fefefe;
+        background-color: #ebe5e5;
     }
     .stButton>button {
         background-color: #1f3b4d;
@@ -62,7 +63,7 @@ st.markdown('''
         color: #ffffff;
     }
     .summary-box {
-        background-color: #f1f7ff;
+        background-color: #9bf8d0;
         border: 1px solid #aaccee;
         border-radius: 10px;
         padding: 16px;

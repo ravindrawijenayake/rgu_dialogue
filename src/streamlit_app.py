@@ -61,7 +61,7 @@ if clear_clicked:
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    st.experimental_rerun()
+    st.info("All inputs and outputs have been cleared.")
 
 # --- Process Transcript ---
 if submitted:

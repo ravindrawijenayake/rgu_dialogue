@@ -118,6 +118,14 @@ if uploaded_file:
         del st.session_state[key]
     st.session_state['transcript'] = transcript
     st.experimental_rerun()
+    return
+
+# Clear button functionality
+if clear:
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.experimental_rerun()
+    return
 
 # Ensure transcript is always synced with session state
 if 'transcript' in st.session_state:
@@ -130,6 +138,7 @@ if submitted and transcript:
     st.session_state['transcript'] = transcript
     st.session_state['analyse'] = True
     st.experimental_rerun()
+    return
 
 # Only show results if analyse was pressed and transcript exists
 if st.session_state.get('analyse') and st.session_state.get('transcript'):

@@ -90,6 +90,9 @@ else:
 # --- Output Section ---
 if transcript.strip() and utterances is not None:
     st.divider()
+    st.subheader("Input Transcript")
+    st.code(transcript, language="text")
+    st.divider()
     st.subheader("Classified Utterances")
     if utterances:
         st.dataframe(utterances, use_container_width=True)

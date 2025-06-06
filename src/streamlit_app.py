@@ -3,6 +3,10 @@ from classify import classify_utterances
 from summarise import generate_summary
 from main import generate_mermaid_diagram
 
+# Add a session state reset for clear functionality
+if 'transcript' not in st.session_state:
+    st.session_state['transcript'] = ''
+
 st.set_page_config(page_title="Dialogue Analysis Platform", layout="wide")
 st.markdown("""
     <style>
@@ -33,32 +37,71 @@ st.markdown("""
         .custom-btn:hover {
             background-color: #0096c7 !important;
         }
-    </style>
-""", unsafe_allow_html=True)
-
-st.title("Dialogue Analysis Platform ")
-st.markdown("<h3 style='margin-top:0;'>Created by Ravindra Wijenayake</h3><p>for RGU DiSCoAI PhD Coding Task</p>", unsafe_allow_html=True)
-
-with st.form("dialogue_form"):
-    transcript = st.text_area("Paste transcript or upload file:", height=200, key="transcript")
-    uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
-    col1, col2 = st.columns([1,1])
-    with col1:
-        submitted = st.form_submit_button("Analyse", use_container_width=True, type="primary")
-    with col2:
-        clear = st.form_submit_button("Clear", use_container_width=True)
-    st.markdown("""
-        <style>
+        .input-area-highlight {
+            background: #fffbe6;
+            border: 2px solid #ffe066;
+            border-radius: 10px;
+            padding: 24px 18px 18px 18px;
+            margin-bottom: 32px;
+        }
         button[kind="primary"], button[kind="secondary"], button[data-testid="baseButton-secondary"] {
             background-color: #00b4d8 !important;
             color: #fff !important;
             border-radius: 6px !important;
             border: none !important;
             font-weight: 600 !important;
-            font-size: 1rem !important;
+            font-size: 0.9rem !important;
             margin-right: 0.5rem !important;
             box-shadow: 0 2px 8px rgba(0,180,216,0.08);
             transition: background 0.2s;
+            min-width: 90px !important;
+            min-height: 32px !important;
+            padding: 0.2rem 0.8rem !important;
+        }
+        button[kind="primary"]:hover, button[kind="secondary"]:hover, button[data-testid="baseButton-secondary"]:hover {
+            background-color: #0096c7 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("Dialogue Analysis Platform ")
+st.markdown("<h3 style='margin-top:0;'>Created by Ravindra Wijenayake</h3><p>for RGU DiSCoAI PhD Coding Task</p>", unsafe_allow_html=True)
+
+# Input area with distinct background
+st.markdown('''
+    <div class="input-area-highlight">
+''', unsafe_allow_html=True)
+
+with st.form("dialogue_form"):
+    transcript = st.text_area("Paste transcript or upload file:", value=st.session_state['transcript'], height=200, key="transcript")
+    uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
+    col1, col2 = st.columns([1,1])
+    with col1:
+        submitted = st.form_submit_button("Analyse", use_container_width=False)
+    with col2:
+        clear = st.form_submit_button("Clear", use_container_width=False)
+    st.markdown("""
+        <style>
+        .input-area-highlight {
+            background: #fffbe6;
+            border: 2px solid #ffe066;
+            border-radius: 10px;
+            padding: 24px 18px 18px 18px;
+            margin-bottom: 32px;
+        }
+        button[kind="primary"], button[kind="secondary"], button[data-testid="baseButton-secondary"] {
+            background-color: #00b4d8 !important;
+            color: #fff !important;
+            border-radius: 6px !important;
+            border: none !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            margin-right: 0.5rem !important;
+            box-shadow: 0 2px 8px rgba(0,180,216,0.08);
+            transition: background 0.2s;
+            min-width: 90px !important;
+            min-height: 32px !important;
+            padding: 0.2rem 0.8rem !important;
         }
         button[kind="primary"]:hover, button[kind="secondary"]:hover, button[data-testid="baseButton-secondary"]:hover {
             background-color: #0096c7 !important;
@@ -66,11 +109,15 @@ with st.form("dialogue_form"):
         </style>
     """, unsafe_allow_html=True)
 
+st.markdown('</div>', unsafe_allow_html=True)
+
 if clear:
+    st.session_state['transcript'] = ''
     st.experimental_rerun()
 
 if uploaded_file:
     transcript = uploaded_file.read().decode("utf-8")
+    st.session_state['transcript'] = transcript
 
 if transcript:
     # Show dialogue line by line

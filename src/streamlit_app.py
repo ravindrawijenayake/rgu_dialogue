@@ -44,15 +44,31 @@ Upload a transcript file or paste your transcript below. The app will classify u
 """)
 st.divider()
 
+# --- Inject Custom CSS for Colorful UI ---
+st.markdown('''
+    <style>
+    body { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
+    .stApp { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
+    .stButton>button { background-color: #4F8BF9; color: white; border-radius: 8px; border: none; margin-right: 8px; font-weight: bold; }
+    .stButton>button:hover { background-color: #1B2845; color: #f6d365; }
+    .stTextArea textarea { background: #fffbe7; border: 2px solid #fda085; border-radius: 8px; }
+    .stFileUploader { background: #fffbe7; border-radius: 8px; }
+    .stDataFrame { background: #fffbe7; border-radius: 8px; }
+    .stAlert { background: #f6d365; color: #1B2845; border-radius: 8px; }
+    .stCodeBlock { background: #f6d365; color: #1B2845; border-radius: 8px; }
+    .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 { color: #1B2845; }
+    </style>
+''', unsafe_allow_html=True)
+
 # --- UI Layout: Input Area with Process & Clear Buttons ---
-col1, col2 = st.columns([4,1])
-with col1:
-    with st.form("transcript_form", clear_on_submit=False):
-        uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-        transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
+with st.form("transcript_form", clear_on_submit=False):
+    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+    transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
+    btn_col1, btn_col2 = st.columns([1,1])
+    with btn_col1:
         submitted = st.form_submit_button("Process Transcript", use_container_width=True)
-with col2:
-    clear_clicked = st.button("Clear", use_container_width=True)
+    with btn_col2:
+        clear_clicked = st.form_submit_button("Clear", use_container_width=True)
 
 # --- Clear Button Functionality ---
 if clear_clicked:
@@ -61,7 +77,8 @@ if clear_clicked:
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    st.info("All inputs and outputs have been cleared.")
+    st.session_state['transcript_text_area'] = ''
+    st.experimental_rerun()
 
 # --- Process Transcript ---
 if submitted:

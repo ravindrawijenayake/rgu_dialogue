@@ -27,11 +27,25 @@ with st.form("dialogue_form"):
     submitted = st.form_submit_button("Analyse")
     clear = st.form_submit_button("Clear")
 
-if clear:
-    st.experimental_rerun()
-
 if uploaded_file:
     transcript = uploaded_file.read().decode("utf-8")
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state['transcript'] = transcript
+    st.experimental_rerun()
+    st.stop()
+
+if clear:
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.experimental_rerun()
+    st.stop()
+
+if submitted and transcript:
+    st.session_state['transcript'] = transcript
+    st.session_state['analyse'] = True
+    st.experimental_rerun()
+    st.stop()
 
 if transcript:
     # Show dialogue line by line

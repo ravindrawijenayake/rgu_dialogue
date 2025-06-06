@@ -1,15 +1,14 @@
 import streamlit as st
 from classify import classify_utterances
 from summarise import generate_summary
-import base64
 
-# Helper to render Mermaid diagrams in Streamlit (requires st_mermaid or iframe fallback)
+# --- Mermaid Diagram Renderer ---
 def render_mermaid(mermaid_code):
     try:
         from streamlit_mermaid import st_mermaid
         st_mermaid(mermaid_code)
     except ImportError:
-        st.info("Install streamlit-mermaid for diagram rendering, or copy the code below to a Mermaid live editor.")
+        st.info("Install streamlit-mermaid or paste this in a Mermaid live editor.")
         st.code(mermaid_code, language="mermaid")
 
 def generate_mermaid_diagram(utterances):
@@ -21,104 +20,132 @@ def generate_mermaid_diagram(utterances):
         nodes.append(f"{node_id}[{label}]")
         if i > 0:
             edges.append(f"U{i-1} --> U{i}")
-    diagram = "graph TD\n" + "\n".join(nodes + edges)
-    return diagram
+    return "graph TD\n" + "\n".join(nodes + edges)
 
+# --- Page Config ---
 st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
 
-# --- Session State for Inputs/Outputs ---
-if 'transcript' not in st.session_state:
-    st.session_state['transcript'] = ''
-if 'uploaded_file' not in st.session_state:
-    st.session_state['uploaded_file'] = None
-if 'utterances' not in st.session_state:
-    st.session_state['utterances'] = None
-if 'summary' not in st.session_state:
-    st.session_state['summary'] = ''
-if 'mermaid_diagram' not in st.session_state:
-    st.session_state['mermaid_diagram'] = ''
+# --- Session State Init ---
+for key in ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']:
+    if key not in st.session_state:
+        st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
 
-st.title("🗣️ Dialogue Analysis Platform")
-st.markdown("""
-Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.
-""")
-st.divider()
-
-# --- Inject Custom CSS for Colorful UI ---
+# --- Custom CSS: Formal & Professional Style ---
 st.markdown('''
     <style>
-    body { background: linear-gradient(120deg, #809fff 0%, #fda085 100%); }
-    .stApp { background: linear-gradient(120deg, #f6d368 0%, #fda085 100%); }
-    .stButton>button { background-color: #4F8BF9; color: white; border-radius: 8px; border: none; margin-right: 8px; font-weight: bold; }
-    .stButton>button:hover { background-color: #1B2845; color: #f6d365; }
-    .stTextArea textarea { background: #fffbe7; border: 2px solid #fda085; border-radius: 8px; }
-    .stFileUploader { background: #fffbe7; border-radius: 8px; }
-    .stDataFrame { background: #fffbe7; border-radius: 8px; }
-    .stAlert { background: #f6d365; color: #1B2845; border-radius: 8px; }
-    .stCodeBlock { background: #f6d365; color: #1B2845; border-radius: 8px; }
-    .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 { color: #1B2845; }
+    body, .stApp {
+        background: #f4f4f9;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .main-title {
+        color: #1f3b4d;
+        font-size: 36px;
+        font-weight: bold;
+        padding-bottom: 0.5rem;
+    }
+    .section {
+        background-color: #ffffff;
+        border: 1px solid #d4d4d4;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .stTextArea textarea, .stFileUploader, .stDataFrame, .stAlert {
+        border-radius: 10px;
+        background-color: #fefefe;
+    }
+    .stButton>button {
+        background-color: #1f3b4d;
+        color: white;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 0.5em 1em;
+    }
+    .stButton>button:hover {
+        background-color: #406882;
+        color: #ffffff;
+    }
+    .summary-box {
+        background-color: #f1f7ff;
+        border: 1px solid #aaccee;
+        border-radius: 10px;
+        padding: 16px;
+        font-size: 1.05em;
+        color: #1f3b4d;
+    }
     </style>
 ''', unsafe_allow_html=True)
 
-# --- UI Layout: Input Area with Process & Clear Buttons ---
-with st.form("transcript_form", clear_on_submit=False):
-    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-    transcript = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript")
-    btn_col1, btn_col2 = st.columns([1,1])
-    with btn_col1:
-        submitted = st.form_submit_button("Process Transcript", use_container_width=True)
-    with btn_col2:
-        clear_clicked = st.form_submit_button("Clear", use_container_width=True)
+# --- Title ---
+st.markdown('<div class="main-title">🗣️ Dialogue Classifier & Summariser</div>', unsafe_allow_html=True)
+st.markdown("Use this tool to upload or paste dialogue transcripts. The tool will classify utterances, generate a summary, and visualise the dialogue flow.")
 
-# --- Clear Button Functionality ---
-if clear_clicked:
-    st.session_state['transcript'] = ''
-    st.session_state['uploaded_file'] = None
-    st.session_state['utterances'] = None
-    st.session_state['summary'] = ''
-    st.session_state['mermaid_diagram'] = ''
-    st.experimental_rerun()
+# --- Input Section ---
+with st.container():
+    st.markdown("### 📝 Input Section")
+    st.markdown('<div class="section">', unsafe_allow_html=True)
 
-# --- Process Transcript ---
+    with st.form("transcript_form", clear_on_submit=False):
+        st.session_state['uploaded_file'] = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+        transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
+        submitted = st.form_submit_button("🔍 Process Transcript", use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- Clear Button Outside Form ---
+clear_col = st.columns([0.85, 0.15])[1]
+with clear_col:
+    if st.button("🗑️ Clear All", use_container_width=True, help="Reset all inputs and outputs"):
+        for key in ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']:
+            st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
+        st.experimental_rerun()
+
+# --- Processing Transcript ---
 if submitted:
-    if uploaded_file is not None:
-        transcript = uploaded_file.read().decode("utf-8")
-        st.session_state['transcript'] = transcript
-    elif transcript.strip():
-        transcript = transcript
-        st.session_state['transcript'] = transcript
+    transcript = ''
+    if st.session_state['uploaded_file'] is not None:
+        transcript = st.session_state['uploaded_file'].read().decode("utf-8")
+    elif transcript_input.strip():
+        transcript = transcript_input.strip()
+    
+    if not transcript:
+        st.warning("⚠️ Please upload a file or paste transcript text.")
     else:
-        st.warning("Please upload a file or paste transcript text.")
-        transcript = ''
-    if transcript.strip():
-        utterances = classify_utterances(transcript)
-        summary = generate_summary(transcript)
-        mermaid_diagram = generate_mermaid_diagram(utterances)
-        st.session_state['utterances'] = utterances
-        st.session_state['summary'] = summary
-        st.session_state['mermaid_diagram'] = mermaid_diagram
-else:
-    transcript = st.session_state['transcript']
-    utterances = st.session_state['utterances']
-    summary = st.session_state['summary']
-    mermaid_diagram = st.session_state['mermaid_diagram']
+        st.session_state['transcript'] = transcript
+        st.session_state['utterances'] = classify_utterances(transcript)
+        st.session_state['summary'] = generate_summary(transcript)
+        st.session_state['mermaid_diagram'] = generate_mermaid_diagram(st.session_state['utterances'])
 
-# --- Output Section ---
+# --- Output Sections ---
+transcript = st.session_state['transcript']
+utterances = st.session_state['utterances']
+summary = st.session_state['summary']
+mermaid_diagram = st.session_state['mermaid_diagram']
+
 if transcript.strip() and utterances is not None:
-    st.divider()
-    st.subheader("Input Transcript")
+    # Input Transcript
+    st.markdown("### 📄 Transcript Preview")
+    st.markdown('<div class="section">', unsafe_allow_html=True)
     st.code(transcript, language="text")
-    st.divider()
-    st.subheader("Classified Utterances")
-    if utterances:
-        st.dataframe(utterances, use_container_width=True)
-    else:
-        st.info("No utterances classified.")
-    st.divider()
-    st.subheader("Summary")
-    st.markdown(f'<div style="background-color:#fffbe7; border:2px solid #fda085; border-radius:8px; padding:16px; color:#1B2845; font-size:1.1em;">{summary}</div>', unsafe_allow_html=True)
-    st.divider()
-    st.subheader("Dialogue Flow (Mermaid Diagram)")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Utterances Table
+    st.markdown("### 🧠 Classified Utterances")
+    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.dataframe(utterances, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Summary
+    st.markdown("### 📑 Summary")
+    st.markdown('<div class="section summary-box">', unsafe_allow_html=True)
+    st.markdown(summary)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Mermaid Diagram
+    st.markdown("### 🔄 Dialogue Flow Diagram")
+    st.markdown('<div class="section">', unsafe_allow_html=True)
     render_mermaid(mermaid_diagram)
+    st.markdown('</div>', unsafe_allow_html=True)
 else:
-    st.info("Awaiting transcript input. Upload a file or paste text, then click 'Process Transcript'.")
+    st.info("📥 Awaiting input. Upload a transcript file or paste text to begin.")

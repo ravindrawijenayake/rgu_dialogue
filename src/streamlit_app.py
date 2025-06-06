@@ -1,63 +1,64 @@
 import streamlit as st
 from classify import classify_utterances
 from summarise import generate_summary
-from main import generate_mermaid_diagram
+import base64
 
-st.set_page_config(page_title="Dialogue Analysis Platform", layout="wide")
-st.markdown("""
-    <style>
-        .container {max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px 36px 36px 36px;}
-        .stDataFrame {background: #fff; border-radius: 8px;}
-        .summary {background: #e8f7e4; padding: 18px 16px; margin-top: 28px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);}
-        .dialogue-box {background: #f9f9f9; border: 1px solid #e0e6ed; border-radius: 8px; padding: 16px; margin-bottom: 24px;}
-        .confidence-high { color: #388e3c; font-weight: 700; }
-        .confidence-medium { color: #fbc02d; font-weight: 700; }
-        .confidence-low { color: #d32f2f; font-weight: 700; }
-    </style>
-""", unsafe_allow_html=True)
+# Helper to render Mermaid diagrams in Streamlit (requires st_mermaid or iframe fallback)
+def render_mermaid(mermaid_code):
+    try:
+        from streamlit_mermaid import st_mermaid
+        st_mermaid(mermaid_code)
+    except ImportError:
+        st.info("Install streamlit-mermaid for diagram rendering, or copy the code below to a Mermaid live editor.")
+        st.code(mermaid_code, language="mermaid")
 
-st.markdown('<div class="container">', unsafe_allow_html=True)
-st.title("Dialogue Analysis Platform")
-st.markdown("<h3>Created by Ravindra Wijenayake</h3>", unsafe_allow_html=True)
+def generate_mermaid_diagram(utterances):
+    nodes = []
+    edges = []
+    for i, u in enumerate(utterances):
+        node_id = f"U{i}"
+        label = f"{u['speaker']}: {u['function']}"
+        nodes.append(f"{node_id}[{label}]")
+        if i > 0:
+            edges.append(f"U{i-1} --> U{i}")
+    diagram = "graph TD\n" + "\n".join(nodes + edges)
+    return diagram
 
-with st.form("dialogue_form"):
-    transcript = st.text_area("Paste transcript or upload file:", height=200, key="transcript")
-    uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
-    submitted = st.form_submit_button("Analyse")
-    clear = st.form_submit_button("Clear")
+st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
+st.title("Dialogue Classifier & Summariser")
+st.write("""
+Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.
+""")
 
-if clear:
-    st.experimental_rerun()
+with st.form("transcript_form"):
+    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+    transcript_text = st.text_area("Or paste transcript here", height=200)
+    submitted = st.form_submit_button("Process Transcript")
 
-if uploaded_file:
-    transcript = uploaded_file.read().decode("utf-8")
+transcript = ""
+if submitted:
+    if uploaded_file is not None:
+        transcript = uploaded_file.read().decode("utf-8")
+    elif transcript_text.strip():
+        transcript = transcript_text
+    else:
+        st.warning("Please upload a file or paste transcript text.")
 
-if transcript:
-    st.markdown('<div class="dialogue-box"><h2>Input Dialogue</h2><pre style="white-space:pre-wrap; word-break:break-word;">{}</pre></div>'.format(transcript), unsafe_allow_html=True)
+if transcript.strip():
     utterances = classify_utterances(transcript)
     summary = generate_summary(transcript)
-    st.subheader("Classified Utterances")
-    def confidence_style(val):
-        if isinstance(val, float):
-            if val >= 0.9:
-                return 'confidence-high'
-            elif val >= 0.6:
-                return 'confidence-medium'
-            else:
-                return 'confidence-low'
-        return ''
-    import pandas as pd
-    df = pd.DataFrame([
-        {
-            "Speaker": u['speaker'],
-            "Utterance": u['utterance'],
-            "Dialogue Function": u['function'],
-            "Confidence/Rationale": u['confidence'] if u.get('confidence') else u.get('rationale', '-')
-        } for u in utterances
-    ])
-    st.dataframe(df, use_container_width=True)
-    st.markdown(f'<div class="summary"><h2>Structured Summary</h2><p>{summary}</p></div>', unsafe_allow_html=True)
     mermaid_diagram = generate_mermaid_diagram(utterances)
-    st.markdown(f'<div class="summary"><h2>Dialogue Flow Diagram</h2></div>', unsafe_allow_html=True)
-    st.code(mermaid_diagram, language="mermaid")
-st.markdown('</div>', unsafe_allow_html=True)
+
+    st.subheader("Classified Utterances")
+    if utterances:
+        st.dataframe(utterances)
+    else:
+        st.info("No utterances classified.")
+
+    st.subheader("Summary")
+    st.write(summary)
+
+    st.subheader("Dialogue Flow (Mermaid Diagram)")
+    render_mermaid(mermaid_diagram)
+else:
+    st.info("Awaiting transcript input.")

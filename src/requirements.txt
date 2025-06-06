@@ -1,0 +1,8 @@
+spacy>=3.0.0,<3.13
+google-generativeai<=0.8.5
+flask
+streamlit
+streamlit-mermaid
+reportlab
+pandas
+jinja2

@@ -24,7 +24,7 @@ body { background: #a2f5fb; }
 .stApp { background-color: #ffffff; padding: 1rem; }
 .stButton>button { background-color: #1f3b4d; color: white; border-radius: 6px; font-weight: bold; }
 .stButton>button:hover { background-color: #0e2433; }
-.stTextArea textarea, .stFileUploader, .stDataFrame { background: #fbfbfb; border-radius: 8px; }
+.stTextArea textarea, .stFileUploader, .stDataFrame { background: #ffebeb; border-radius: 8px; }
 .summary-box { background-color: #f7dbff; border: 2px solid #fda085; border-radius: 8px; padding: 16px; color: #1B2845; font-size: 1.1em; }
 </style>''', unsafe_allow_html=True)
 
@@ -66,7 +66,7 @@ def generate_pdf(summary_text):
     return buffer
 
 # ========== Session State ==========
-def_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'transcript_input']
+def_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']
 for key in def_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key not in ['utterances', 'uploaded_file'] else None
@@ -82,8 +82,8 @@ st.divider()
 # ========== Transcript Input ==========
 with st.form("transcript_form", clear_on_submit=False):
     uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript_input'], height=200, key="transcript_input")
-    submitted = st.form_submit_button("🔍 Process Transcript")
+    transcript_input = st.text_area("Or paste transcript here", value=st.session_state.get('transcript', ''), height=200, key="transcript")
+    submitted = st.form_submit_button("🔍 Process Transcript", use_container_width=True)
 
 # ========== Clear Button ==========
 if st.button("🗑️ Clear All", use_container_width=True):
@@ -97,7 +97,6 @@ if submitted:
     if uploaded_file is not None:
         transcript = uploaded_file.read().decode("utf-8")
         st.session_state['transcript'] = transcript
-        st.session_state['transcript_input'] = transcript
     elif transcript_input.strip():
         transcript = transcript_input
         st.session_state['transcript'] = transcript

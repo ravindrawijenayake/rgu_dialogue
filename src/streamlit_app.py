@@ -47,8 +47,8 @@ st.divider()
 # --- Inject Custom CSS for Colorful UI ---
 st.markdown('''
     <style>
-    body { background: linear-gradient(120deg, #f6d378 0%, #fda085 100%); }
-    .stApp { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
+    body { background: linear-gradient(120deg, #809fff 0%, #fda085 100%); }
+    .stApp { background: linear-gradient(120deg, #f6d368 0%, #fda085 100%); }
     .stButton>button { background-color: #4F8BF9; color: white; border-radius: 8px; border: none; margin-right: 8px; font-weight: bold; }
     .stButton>button:hover { background-color: #1B2845; color: #f6d365; }
     .stTextArea textarea { background: #fffbe7; border: 2px solid #fda085; border-radius: 8px; }
@@ -63,7 +63,7 @@ st.markdown('''
 # --- UI Layout: Input Area with Process & Clear Buttons ---
 with st.form("transcript_form", clear_on_submit=False):
     uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-    transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
+    transcript = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript")
     btn_col1, btn_col2 = st.columns([1,1])
     with btn_col1:
         submitted = st.form_submit_button("Process Transcript", use_container_width=True)
@@ -77,7 +77,6 @@ if clear_clicked:
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    st.session_state['transcript_text_area'] = ''
     st.experimental_rerun()
 
 # --- Process Transcript ---
@@ -85,8 +84,8 @@ if submitted:
     if uploaded_file is not None:
         transcript = uploaded_file.read().decode("utf-8")
         st.session_state['transcript'] = transcript
-    elif transcript_text.strip():
-        transcript = transcript_text
+    elif transcript.strip():
+        transcript = transcript
         st.session_state['transcript'] = transcript
     else:
         st.warning("Please upload a file or paste transcript text.")
@@ -117,7 +116,7 @@ if transcript.strip() and utterances is not None:
         st.info("No utterances classified.")
     st.divider()
     st.subheader("Summary")
-    st.write(summary)
+    st.markdown(f'<div style="background-color:#fffbe7; border:2px solid #fda085; border-radius:8px; padding:16px; color:#1B2845; font-size:1.1em;">{summary}</div>', unsafe_allow_html=True)
     st.divider()
     st.subheader("Dialogue Flow (Mermaid Diagram)")
     render_mermaid(mermaid_diagram)

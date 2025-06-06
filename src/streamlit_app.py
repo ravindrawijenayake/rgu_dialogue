@@ -6,6 +6,9 @@ from main import generate_mermaid_diagram
 st.set_page_config(page_title="Dialogue Analysis Platform", layout="wide")
 st.markdown("""
     <style>
+        body, .stApp {
+            background-color: #e3f6fc !important; /* light seablue */
+        }
         .container {max-width: 900px; margin: 0 auto 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px 36px 36px 36px;}
         .stDataFrame {background: #fff; border-radius: 8px;}
         .summary {background: #e8f7e4; padding: 18px 16px; margin-top: 28px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);}
@@ -15,17 +18,53 @@ st.markdown("""
         .confidence-low { color: #d32f2f; font-weight: 700; }
         .mermaid {background: #fff; border-radius: 8px; padding: 16px; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);}
         .stApp {padding-top: 0rem !important;}
+        .custom-btn {
+            background-color: #00b4d8 !important;
+            color: #fff !important;
+            border-radius: 6px !important;
+            border: none !important;
+            padding: 0.5rem 1.5rem !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            margin-right: 0.5rem !important;
+            box-shadow: 0 2px 8px rgba(0,180,216,0.08);
+            transition: background 0.2s;
+        }
+        .custom-btn:hover {
+            background-color: #0096c7 !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Dialogue Analysis Platform for RGU DiSCoAI PhD Coding Task")
-st.markdown("<h3 style='margin-top:0;'>Created by Ravindra Wijenayake</h3>", unsafe_allow_html=True)
+st.title("Dialogue Analysis Platform ")
+st.markdown("<h3 style='margin-top:0;'>Created by Ravindra Wijenayake</h3><p>for RGU DiSCoAI PhD Coding Task</p>", unsafe_allow_html=True)
 
 with st.form("dialogue_form"):
     transcript = st.text_area("Paste transcript or upload file:", height=200, key="transcript")
     uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
-    submitted = st.form_submit_button("Analyse")
-    clear = st.form_submit_button("Clear")
+    col1, col2 = st.columns([1,1])
+    with col1:
+        submitted = st.form_submit_button("Analyse", use_container_width=True, type="primary")
+    with col2:
+        clear = st.form_submit_button("Clear", use_container_width=True)
+    st.markdown("""
+        <style>
+        button[kind="primary"], button[kind="secondary"], button[data-testid="baseButton-secondary"] {
+            background-color: #00b4d8 !important;
+            color: #fff !important;
+            border-radius: 6px !important;
+            border: none !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            margin-right: 0.5rem !important;
+            box-shadow: 0 2px 8px rgba(0,180,216,0.08);
+            transition: background 0.2s;
+        }
+        button[kind="primary"]:hover, button[kind="secondary"]:hover, button[data-testid="baseButton-secondary"]:hover {
+            background-color: #0096c7 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
 if clear:
     st.experimental_rerun()

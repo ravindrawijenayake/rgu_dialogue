@@ -67,15 +67,17 @@ st.markdown("""
 st.title("Dialogue Analysis Platform ")
 st.markdown("<h3 style='margin-top:0;'>Created by Ravindra Wijenayake</h3><p>for RGU DiSCoAI PhD Coding Task</p>", unsafe_allow_html=True)
 
-# Input area with distinct background
-st.markdown('''
-    <div class="input-area-highlight">
-''', unsafe_allow_html=True)
+# Place the label outside the container
+st.markdown('<label style="font-weight:600;font-size:1.1rem;">Paste transcript or upload file:</label>', unsafe_allow_html=True)
 
 with st.form("dialogue_form"):
-    transcript = st.text_area("Paste transcript or upload file:", value=st.session_state['transcript'], height=200, key="transcript")
+    # Container for input area only
+    st.markdown('<div class="input-area-highlight">', unsafe_allow_html=True)
+    transcript = st.text_area("Paste your transcript here...", value=st.session_state['transcript'], height=200, key="transcript")
+    st.markdown('</div>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
-    col1, col2 = st.columns([1,1])
+    # Buttons close together
+    col1, col2, _ = st.columns([1,1,8])
     with col1:
         submitted = st.form_submit_button("Analyse", use_container_width=False)
     with col2:
@@ -86,8 +88,8 @@ with st.form("dialogue_form"):
             background: #fffbe6;
             border: 2px solid #ffe066;
             border-radius: 10px;
-            padding: 24px 18px 18px 18px;
-            margin-bottom: 32px;
+            padding: 18px 14px 14px 14px;
+            margin-bottom: 18px;
         }
         button[kind="primary"], button[kind="secondary"], button[data-testid="baseButton-secondary"] {
             background-color: #00b4d8 !important;
@@ -96,7 +98,7 @@ with st.form("dialogue_form"):
             border: none !important;
             font-weight: 600 !important;
             font-size: 0.9rem !important;
-            margin-right: 0.5rem !important;
+            margin-right: 0.2rem !important;
             box-shadow: 0 2px 8px rgba(0,180,216,0.08);
             transition: background 0.2s;
             min-width: 90px !important;
@@ -108,8 +110,6 @@ with st.form("dialogue_form"):
         }
         </style>
     """, unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 if clear:
     st.session_state['transcript'] = ''

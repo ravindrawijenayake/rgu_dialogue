@@ -28,7 +28,7 @@ body { background: #021418; }
     background-color: #8684f5; color: white; border-radius: 6px; font-weight: bold;
 }
 .stButton>button.process-btn:hover {
-    background-color: #2d16df#615fd9;
+    background-color: #2d16df;
 }
 .stButton>button.clear-btn {
     background-color: #615fd9; color: white; border-radius: 6px; font-weight: bold;
@@ -93,6 +93,18 @@ for key in default_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key != 'utterances' else None
 
+# Add a clear flag to session state if not present
+if 'clear_flag' not in st.session_state:
+    st.session_state['clear_flag'] = False
+
+# At the very top of the script, after imports and before widgets:
+if st.session_state.get('clear_flag', False):
+    st.session_state['transcript'] = ''
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = ''
+    st.session_state['mermaid_diagram'] = ''
+    st.session_state['clear_flag'] = False
+
 # === Title ===
 st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
 st.markdown("Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.")
@@ -101,8 +113,8 @@ st.markdown("Upload a transcript file or paste your transcript below. The app wi
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    uploaded_file = st.file_uploader('<h4>Upload transcript file (UTF-8 text)</h4>', type=["txt"], key="uploaded_file")
-    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
+    uploaded_file = st.file_uploader('<h4>Upload transcript file (UTF-8 text)</h4>', type=["txt"])
+    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript")
     col1, col2 = st.columns([1,1])
     with col1:
         submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary", kwargs=None, type="primary")
@@ -111,9 +123,7 @@ with st.form("transcript_form", clear_on_submit=False):
 
 # === Clear functionality ===
 if clear_clicked:
-    for key in default_keys:
-        if key != 'uploaded_file':
-            st.session_state[key] = '' if key != 'utterances' else None
+    st.session_state['clear_flag'] = True
     st.experimental_rerun()
 
 # === Process transcript ===

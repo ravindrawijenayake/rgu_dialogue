@@ -22,58 +22,77 @@ st.sidebar.markdown("""
 st.sidebar.markdown('<hr>', unsafe_allow_html=True)
 st.sidebar.markdown('<div style="color:#888;font-size:0.97rem;">Made with <span style="color:#1976d2;">Streamlit</span> &middot; <a href="https://github.com/ravindrawijenayake" style="color:#1976d2;">GitHub</a></div>', unsafe_allow_html=True)
 
-# --- Main Layout ---
+# --- Custom CSS for clean look ---
 st.markdown("""
     <style>
-        .main-card {max-width: 800px; margin: 0 auto 40px auto; background: #fff; border-radius: 16px; box-shadow: 0 6px 32px rgba(44,62,80,0.10); padding: 32px 32px 32px 32px;}
+        html, body, .stApp {background: #f6fafc !important;}
+        .stTextArea textarea {background: #f8fbfd; font-size: 1.1rem; border-radius: 8px;}
+        .stFileUploader {margin-bottom: 10px;}
+        .stButton>button {background: #29597a; color: #fff; border-radius: 6px; border: none; padding: 10px 32px; font-size: 1.1rem; font-weight: 600; margin-right: 12px;}
+        .stButton>button:hover {background: #1d3c53;}
+        .stMarkdown h1 {color: #29597a; font-size: 2.6rem; margin-bottom: 0.2em;}
+        .stMarkdown h2 {color: #29597a; margin-top: 2.2em;}
+        .stMarkdown h3 {color: #4b6584;}
+        .stMarkdown pre {background: #eaf4fb; border-radius: 6px;}
+        .summary {background: #e3f2fd; padding: 18px 16px; border-radius: 10px; margin-top: 18px;}
         .chip {display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.95em;margin-right:4px;}
         .chip-func {background:#e3f2fd;color:#1976d2;}
         .chip-high {background:#e8f5e9;color:#388e3c;}
         .chip-medium {background:#fffde7;color:#fbc02d;}
         .chip-low {background:#ffebee;color:#d32f2f;}
-        .section-title {color:#1976d2;margin-top:32px;}
-        .summary {background: #e3f2fd; padding: 18px 16px; border-radius: 10px; margin-top: 18px;}
+        .footer {text-align:center;color:#888;font-size:0.97rem;margin-top:32px;}
     </style>
 """, unsafe_allow_html=True)
-st.markdown('<div class="main-card">', unsafe_allow_html=True)
 
-st.markdown('<h1 style="color:#1976d2;margin-bottom:0;">Dialogue Analysis Platform</h1>', unsafe_allow_html=True)
-st.caption("Paste, upload, or use a sample transcript. Then click Analyse.")
+# --- Header ---
+st.markdown('<h1>Dialogue Analysis Platform</h1>', unsafe_allow_html=True)
+st.markdown('<h3 style="text-align:center; color:#29597a; margin-top:0;">Created by Ravindra Wijenayake</h3>', unsafe_allow_html=True)
 
 # --- Input Section ---
-col1, col2, col3 = st.columns([3,2,2])
-with col1:
-    transcript = st.text_area(
-        "Transcript",
-        value=st.session_state['transcript'],
-        height=180,
-        key="transcript_input",
-        placeholder="E.g. Alice: Hello! How are you?\nBob: I'm good, thanks! And you?",
-        help="Each line should start with the speaker's name, followed by a colon."
-    )
-with col2:
-    uploaded_file = st.file_uploader(
-        "Upload .txt",
-        type=["txt"],
-        help="Upload a plain text file with the dialogue transcript."
-    )
-with col3:
-    if st.button("Insert Sample"):
-        transcript = "Alice: Hello! How are you?\nBob: I'm good, thanks! And you?\nAlice: Doing well!"
-        st.session_state['transcript'] = transcript
-        st.experimental_rerun()
+st.markdown('<b>Paste transcript or upload file:</b>', unsafe_allow_html=True)
+transcript = st.text_area(
+    "Paste your dialogue transcript here...",
+    value=st.session_state['transcript'],
+    height=180,
+    key="transcript_input",
+    placeholder="Paste your dialogue transcript here...",
+    help="Each line should start with the speaker's name, followed by a colon."
+)
+uploaded_file = st.file_uploader(
+    "",
+    type=["txt"],
+    help="Upload a plain text file with the dialogue transcript."
+)
+
+colA, colB = st.columns([1,1])
+with colA:
+    analyse_clicked = st.button("Analyse")
+with colB:
+    clear_clicked = st.button("Clear")
+
+# --- Handle Clear Button ---
+if clear_clicked:
+    st.session_state['transcript'] = ''
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = None
+    st.session_state['mermaid'] = None
+    st.experimental_set_query_params()  # Soft reset
+    st.experimental_rerun()
 
 # --- Handle File Upload ---
-if uploaded_file:
+if uploaded_file is not None:
     transcript = uploaded_file.read().decode("utf-8")
     st.session_state['transcript'] = transcript
-    st.experimental_rerun()
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = None
+    st.session_state['mermaid'] = None
+    # No rerun needed, just update state
 
 # --- Update session state from text area ---
 st.session_state['transcript'] = transcript
 
-# --- Analyse Button ---
-if st.button("\U0001F50D Analyse", help="Analyse the transcript and generate results."):
+# --- Handle Analyse Button ---
+if analyse_clicked:
     if not transcript.strip():
         st.error("Please provide a transcript to analyse.")
         st.session_state['utterances'] = None
@@ -91,7 +110,7 @@ if st.button("\U0001F50D Analyse", help="Analyse the transcript and generate res
 
 # --- Results Section ---
 if st.session_state.get('utterances'):
-    st.markdown('<h2 class="section-title">Utterances Table</h2>', unsafe_allow_html=True)
+    st.markdown('<h2>Utterances Table</h2>', unsafe_allow_html=True)
     def chip(val, kind):
         return f'<span class="chip chip-{kind}">{val}</span>'
     df = pd.DataFrame([
@@ -105,14 +124,15 @@ if st.session_state.get('utterances'):
     st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
     st.download_button("Download CSV", df.to_csv(index=False), "utterances.csv")
 
-    st.markdown('<h2 class="section-title">Structured Summary</h2>', unsafe_allow_html=True)
+    st.markdown('<h2>Structured Summary</h2>', unsafe_allow_html=True)
     st.markdown(f'<div class="summary">{st.session_state["summary"]}</div>', unsafe_allow_html=True)
 
-    st.markdown('<h2 class="section-title">Dialogue Flow Diagram</h2>', unsafe_allow_html=True)
+    st.markdown('<h2>Dialogue Flow Diagram</h2>', unsafe_allow_html=True)
     try:
         import streamlit_mermaid as st_mermaid
         st_mermaid.st_mermaid(st.session_state['mermaid'])
     except ImportError:
         st.code(st.session_state['mermaid'], language="mermaid")
 
-st.markdown('</div>', unsafe_allow_html=True)
+# --- Footer ---
+st.markdown('<div class="footer">Made with <span style="color:#1976d2;">Streamlit</span> &middot; <a href="https://github.com/ravindrawijenayake" style="color:#1976d2;">GitHub</a></div>', unsafe_allow_html=True)

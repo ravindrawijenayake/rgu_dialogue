@@ -5,7 +5,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 
 # === Page config ===
-st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
+st.set_page_config(page_title="Dialogue Classifier & Summariser - Ravindra", layout="wide")
 
 # === Sidebar for settings ===
 with st.sidebar:
@@ -28,10 +28,10 @@ body { background: #021418; }
     background-color: #8684f5; color: white; border-radius: 6px; font-weight: bold;
 }
 .stButton>button.process-btn:hover {
-    background-color: #615fd9;
+    background-color: #2d16df#615fd9;
 }
 .stButton>button.clear-btn {
-    background-color: #f29cbe; color: white; border-radius: 6px; font-weight: bold;
+    background-color: #615fd9; color: white; border-radius: 6px; font-weight: bold;
 }
 .stButton>button.clear-btn:hover {
     background-color: #d6718a;
@@ -94,15 +94,15 @@ for key in default_keys:
         st.session_state[key] = '' if key != 'utterances' else None
 
 # === Title ===
-st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1>', unsafe_allow_html=True)
-st.markdown("Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.")
+st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
+st.markdown("<h4>Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.</h4>")
 
 # === Input Section ===
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"], key="uploaded_file")
-    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
+    uploaded_file = st.file_uploader("<h4>Upload transcript file (UTF-8 text)</h4>", type=["txt"], key="uploaded_file")
+    transcript_input = st.text_area("<h4>Or paste transcript here</h4>", value=st.session_state['transcript'], height=200, key="transcript_text_area")
     col1, col2 = st.columns([1,1])
     with col1:
         submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary", kwargs=None, type="primary")

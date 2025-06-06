@@ -101,8 +101,8 @@ st.markdown("Upload a transcript file or paste your transcript below. The app wi
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    uploaded_file = st.file_uploader("<h4>Upload transcript file (UTF-8 text)</h4>", type=["txt"], key="uploaded_file")
-    transcript_input = st.text_area("<h4>Or paste transcript here</h4>", value=st.session_state['transcript'], height=200, key="transcript_text_area")
+    uploaded_file = st.file_uploader('<h4>Upload transcript file (UTF-8 text)</h4>', type=["txt"], key="uploaded_file")
+    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
     col1, col2 = st.columns([1,1])
     with col1:
         submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary", kwargs=None, type="primary")
@@ -112,9 +112,8 @@ with st.form("transcript_form", clear_on_submit=False):
 # === Clear functionality ===
 if clear_clicked:
     for key in default_keys:
-        st.session_state[key] = '' if key != 'utterances' else None
-    st.session_state['uploaded_file'] = None
-    st.session_state['transcript'] = ''
+        if key != 'uploaded_file':
+            st.session_state[key] = '' if key != 'utterances' else None
     st.experimental_rerun()
 
 # === Process transcript ===

@@ -111,15 +111,29 @@ with st.form("dialogue_form"):
         </style>
     """, unsafe_allow_html=True)
 
-if clear:
-    st.session_state['transcript'] = ''
-    st.experimental_rerun()
-
+# Handle file upload and clear previous entries if a new file is uploaded
 if uploaded_file:
     transcript = uploaded_file.read().decode("utf-8")
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
     st.session_state['transcript'] = transcript
+    st.experimental_rerun()
 
-if transcript:
+# Ensure transcript is always synced with session state
+if 'transcript' in st.session_state:
+    transcript = st.session_state['transcript']
+else:
+    transcript = ''
+
+# Analyse button functionality
+if submitted and transcript:
+    st.session_state['transcript'] = transcript
+    st.session_state['analyse'] = True
+    st.experimental_rerun()
+
+# Only show results if analyse was pressed and transcript exists
+if st.session_state.get('analyse') and st.session_state.get('transcript'):
+    transcript = st.session_state['transcript']
     # Show dialogue line by line
     st.markdown('<div class="dialogue-box"><h2>Input Dialogue</h2>' +
         ''.join(f'<div style="border-bottom:1px solid #eee;padding:2px 0;"><b>{line.split(":",1)[0]}</b>: {line.split(":",1)[1] if ":" in line else line}</div>' for line in transcript.strip().splitlines() if line.strip()) +

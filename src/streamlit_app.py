@@ -25,12 +25,7 @@ def generate_mermaid_diagram(utterances):
 # --- Page Config ---
 st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
 
-# --- Session State Init ---
-for key in ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']:
-    if key not in st.session_state:
-        st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
-
-# --- Custom CSS: Formal & Professional Style ---
+# --- Custom CSS ---
 st.markdown('''
     <style>
     body, .stApp {
@@ -77,6 +72,12 @@ st.markdown('''
     </style>
 ''', unsafe_allow_html=True)
 
+# --- Initial Session State ---
+default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'transcript_input']
+for key in default_keys:
+    if key not in st.session_state:
+        st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
+
 # --- Title ---
 st.markdown('<div class="main-title">🗣️ Dialogue Classifier & Summariser</div>', unsafe_allow_html=True)
 st.markdown("Use this tool to upload or paste dialogue transcripts. The tool will classify utterances, generate a summary, and visualise the dialogue flow.")
@@ -87,28 +88,29 @@ with st.container():
     st.markdown('<div class="section">', unsafe_allow_html=True)
 
     with st.form("transcript_form", clear_on_submit=False):
-        st.session_state['uploaded_file'] = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-        transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
+        uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+        transcript_input = st.text_area("Or paste transcript here", value=st.session_state.get('transcript_input', ''), height=200, key="transcript_input")
         submitted = st.form_submit_button("🔍 Process Transcript", use_container_width=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Clear Button Outside Form ---
-clear_col = st.columns([0.85, 0.15])[1]
-with clear_col:
+# --- Clear All Button ---
+col1, col2 = st.columns([0.85, 0.15])
+with col2:
     if st.button("🗑️ Clear All", use_container_width=True, help="Reset all inputs and outputs"):
-        for key in ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']:
-            st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
-        st.experimental_rerun()
+        for key in default_keys:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.rerun()
 
 # --- Processing Transcript ---
 if submitted:
     transcript = ''
-    if st.session_state['uploaded_file'] is not None:
-        transcript = st.session_state['uploaded_file'].read().decode("utf-8")
+    if uploaded_file is not None:
+        transcript = uploaded_file.read().decode("utf-8")
     elif transcript_input.strip():
         transcript = transcript_input.strip()
-    
+
     if not transcript:
         st.warning("⚠️ Please upload a file or paste transcript text.")
     else:
@@ -117,20 +119,20 @@ if submitted:
         st.session_state['summary'] = generate_summary(transcript)
         st.session_state['mermaid_diagram'] = generate_mermaid_diagram(st.session_state['utterances'])
 
-# --- Output Sections ---
-transcript = st.session_state['transcript']
-utterances = st.session_state['utterances']
-summary = st.session_state['summary']
-mermaid_diagram = st.session_state['mermaid_diagram']
+# --- Output Display ---
+transcript = st.session_state.get('transcript', '')
+utterances = st.session_state.get('utterances', None)
+summary = st.session_state.get('summary', '')
+mermaid_diagram = st.session_state.get('mermaid_diagram', '')
 
 if transcript.strip() and utterances is not None:
-    # Input Transcript
+    # Transcript
     st.markdown("### 📄 Transcript Preview")
     st.markdown('<div class="section">', unsafe_allow_html=True)
     st.code(transcript, language="text")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Utterances Table
+    # Classified Utterances
     st.markdown("### 🧠 Classified Utterances")
     st.markdown('<div class="section">', unsafe_allow_html=True)
     st.dataframe(utterances, use_container_width=True)
@@ -147,5 +149,6 @@ if transcript.strip() and utterances is not None:
     st.markdown('<div class="section">', unsafe_allow_html=True)
     render_mermaid(mermaid_diagram)
     st.markdown('</div>', unsafe_allow_html=True)
+
 else:
     st.info("📥 Awaiting input. Upload a transcript file or paste text to begin.")

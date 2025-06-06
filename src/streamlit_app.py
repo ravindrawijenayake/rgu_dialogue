@@ -66,6 +66,6 @@ if transcript:
     # Render Mermaid diagram as an actual diagram using streamlit-mermaid if available, else fallback to code block
     try:
         import streamlit_mermaid as st_mermaid
-        st_mermaid.render(mermaid_diagram)
+        st_mermaid.st_mermaid(mermaid_diagram)
     except ImportError:
         st.code(mermaid_diagram, language="mermaid")

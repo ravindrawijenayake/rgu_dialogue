@@ -70,6 +70,12 @@ st.markdown('''
         font-size: 1.05em;
         color: #1f3b4d;
     }
+    .input-label {
+        font-size: 1.25em;
+        font-weight: bold;
+        color: #e85d04;
+        margin-bottom: 0.25em;
+    }
     </style>
 ''', unsafe_allow_html=True)
 
@@ -89,8 +95,10 @@ with st.container():
     st.markdown('<div class="section">', unsafe_allow_html=True)
 
     with st.form("transcript_form", clear_on_submit=False):
-        uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-        transcript_input = st.text_area("Or paste transcript here", value=st.session_state.get('transcript_input', ''), height=200, key="transcript_input")
+        st.markdown('<div class="input-label">Upload transcript file (UTF-8 text)</div>', unsafe_allow_html=True)
+        uploaded_file = st.file_uploader(" ", type=["txt"])
+        st.markdown('<div class="input-label">Or paste transcript here</div>', unsafe_allow_html=True)
+        transcript_input = st.text_area(" ", value=st.session_state.get('transcript_input', ''), height=200, key="transcript_input")
         submitted = st.form_submit_button("🔍 Process Transcript", use_container_width=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -141,9 +149,7 @@ if transcript.strip() and utterances is not None:
 
     # Summary
     st.markdown("### 📑 Summary")
-    st.markdown('<div class="section">', unsafe_allow_html=True)
-    st.markdown(summary)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="summary-box">' + summary + '</div>', unsafe_allow_html=True)
 
     # Mermaid Diagram
     st.markdown("### 🔄 Dialogue Flow Diagram")

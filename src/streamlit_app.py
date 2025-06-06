@@ -1,17 +1,43 @@
 import streamlit as st
 from classify import classify_utterances
 from summarise import generate_summary
+from io import BytesIO
+from reportlab.pdfgen import canvas
 
-# --- Mermaid Diagram Renderer ---
+# ========== Page Configuration ==========
+st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
+
+# ========== Sidebar Settings ==========
+with st.sidebar:
+    st.header("⚙️ Settings")
+    show_summary = st.checkbox("Show Summary", value=True)
+    show_mermaid = st.checkbox("Show Dialogue Flow (Mermaid)", value=True)
+    mermaid_direction = st.radio(
+        "Mermaid Flow Direction",
+        options=["TD (Top-Down)", "LR (Left-Right)"],
+        index=0
+    )
+
+# ========== Custom CSS ==========
+st.markdown('''<style>
+body { background: #a2f5fb; }
+.stApp { background-color: #ffffff; padding: 1rem; }
+.stButton>button { background-color: #1f3b4d; color: white; border-radius: 6px; font-weight: bold; }
+.stButton>button:hover { background-color: #0e2433; }
+.stTextArea textarea, .stFileUploader, .stDataFrame { background: #fbfbfb; border-radius: 8px; }
+.summary-box { background-color: #f7dbff; border: 2px solid #fda085; border-radius: 8px; padding: 16px; color: #1B2845; font-size: 1.1em; }
+</style>''', unsafe_allow_html=True)
+
+# ========== Helper Functions ==========
 def render_mermaid(mermaid_code):
     try:
         from streamlit_mermaid import st_mermaid
         st_mermaid(mermaid_code)
     except ImportError:
-        st.info("Install streamlit-mermaid or paste this in a Mermaid live editor.")
+        st.info("Install streamlit-mermaid or copy to Mermaid live editor.")
         st.code(mermaid_code, language="mermaid")
 
-def generate_mermaid_diagram(utterances):
+def generate_mermaid_diagram(utterances, direction="TD"):
     nodes = []
     edges = []
     for i, u in enumerate(utterances):
@@ -20,142 +46,105 @@ def generate_mermaid_diagram(utterances):
         nodes.append(f"{node_id}[{label}]")
         if i > 0:
             edges.append(f"U{i-1} --> U{i}")
-    return "graph TD\n" + "\n".join(nodes + edges)
+    return f"graph {direction}\n" + "\n".join(nodes + edges)
 
-# --- Page Config ---
-st.set_page_config(page_title="Dialogue Classifier & Summariser", layout="wide")
-st.text("Created by Ravindra Wijenayake - for RGU DiSCoAI")
+def generate_pdf(summary_text):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
+    c.setFont("Helvetica", 12)
+    width, height = c._pagesize
+    lines = summary_text.split("\n")
+    y = height - 50
+    for line in lines:
+        c.drawString(40, y, line)
+        y -= 20
+        if y < 40:
+            c.showPage()
+            y = height - 50
+    c.save()
+    buffer.seek(0)
+    return buffer
 
-# --- Custom CSS ---
-st.markdown('''
-    <style>
-    body, .stApp {
-        background: #a2f5fb;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .main-title {
-        color: #1f3b4d;
-        font-size: 36px;
-        font-weight: bold;
-        padding-bottom: 0.5rem;
-    }
-    .section {
-        background-color: #1286f3;
-        border: 1px solid #1d1111;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    .stTextArea textarea, .stFileUploader, .stDataFrame, .stAlert {
-        border-radius: 10px;
-        background-color: #ebe5e5;
-    }
-    .stButton>button {
-        background-color: #1f3b4d;
-        color: white;
-        font-weight: bold;
-        border-radius: 6px;
-        padding: 0.5em 1em;
-    }
-    .stButton>button:hover {
-        background-color: #406882;
-        color: #ffffff;
-    }
-    .summary-box {
-        background-color: #9bf8d0;
-        border: 1px solid #aaccee;
-        border-radius: 10px;
-        padding: 16px;
-        font-size: 1.05em;
-        color: #1f3b4d;
-    }
-    .input-label {
-        font-size: 1.25em;
-        font-weight: bold;
-        color: #e85d04;
-        margin-bottom: 0.25em;
-    }
-    </style>
-''', unsafe_allow_html=True)
-
-# --- Initial Session State ---
-default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'transcript_input']
-for key in default_keys:
+# ========== Session State ==========
+def_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'transcript_input']
+for key in def_keys:
     if key not in st.session_state:
-        st.session_state[key] = '' if key != 'utterances' and key != 'uploaded_file' else None
+        st.session_state[key] = '' if key not in ['utterances', 'uploaded_file'] else None
 
-# --- Title ---
-st.markdown('<div class="main-title">🗣️ Dialogue Classifier & Summariser</div>', unsafe_allow_html=True)
-st.markdown("Use this tool to upload or paste dialogue transcripts. The tool will classify utterances, generate a summary, and visualise the dialogue flow.")
+# ========== Title ==========
+st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h4>Created by Ravindra Wijenayake-for RGU DiSCoAI', unsafe_allow_html=True)
+st.markdown("""
+Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.
+""")
 
-# --- Input Section ---
-with st.container():
-    st.markdown("### 📝 Input Section")
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+st.divider()
 
-    with st.form("transcript_form", clear_on_submit=False):
-        st.markdown('<div class="input-label">Upload transcript file (UTF-8 text)</div>', unsafe_allow_html=True)
-        uploaded_file = st.file_uploader(" ", type=["txt"])
-        st.markdown('<div class="input-label">Or paste transcript here</div>', unsafe_allow_html=True)
-        transcript_input = st.text_area(" ", value=st.session_state.get('transcript_input', ''), height=200, key="transcript_input")
-        submitted = st.form_submit_button("🔍 Process Transcript", use_container_width=True)
+# ========== Transcript Input ==========
+with st.form("transcript_form", clear_on_submit=False):
+    uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
+    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript_input'], height=200, key="transcript_input")
+    submitted = st.form_submit_button("🔍 Process Transcript")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+# ========== Clear Button ==========
+if st.button("🗑️ Clear All", use_container_width=True):
+    for key in def_keys:
+        if key in st.session_state:
+            del st.session_state[key]
+    st.rerun()
 
-# --- Clear All Button ---
-col1, col2 = st.columns([0.85, 0.15])
-with col2:
-    if st.button("🗑️ Clear All", use_container_width=True, help="Reset all inputs and outputs"):
-        for key in default_keys:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.rerun()
-
-# --- Processing Transcript ---
+# ========== Process Input ==========
 if submitted:
-    transcript = ''
     if uploaded_file is not None:
         transcript = uploaded_file.read().decode("utf-8")
-    elif transcript_input.strip():
-        transcript = transcript_input.strip()
-
-    if not transcript:
-        st.warning("⚠️ Please upload a file or paste transcript text.")
-    else:
         st.session_state['transcript'] = transcript
-        st.session_state['utterances'] = classify_utterances(transcript)
-        st.session_state['summary'] = generate_summary(transcript)
-        st.session_state['mermaid_diagram'] = generate_mermaid_diagram(st.session_state['utterances'])
+        st.session_state['transcript_input'] = transcript
+    elif transcript_input.strip():
+        transcript = transcript_input
+        st.session_state['transcript'] = transcript
+    else:
+        st.warning("⚠️ Please upload a file or paste transcript text.")
+        transcript = ''
 
-# --- Output Display ---
-transcript = st.session_state.get('transcript', '')
-utterances = st.session_state.get('utterances', None)
-summary = st.session_state.get('summary', '')
-mermaid_diagram = st.session_state.get('mermaid_diagram', '')
+    if transcript.strip():
+        try:
+            utterances = classify_utterances(transcript)
+            summary = generate_summary(transcript)
+            mermaid_diagram = generate_mermaid_diagram(utterances, direction=mermaid_direction.split()[0])
+
+            st.session_state['utterances'] = utterances
+            st.session_state['summary'] = summary
+            st.session_state['mermaid_diagram'] = mermaid_diagram
+
+        except Exception as e:
+            st.error("⚠️ Failed to process the transcript. Please check the input or try again.")
+            st.exception(e)
+
+# ========== Display Outputs ==========
+transcript = st.session_state['transcript']
+utterances = st.session_state['utterances']
+summary = st.session_state['summary']
+mermaid_diagram = st.session_state['mermaid_diagram']
 
 if transcript.strip() and utterances is not None:
-    # Transcript
-    st.markdown("### 📄 Transcript Preview")
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.divider()
+    st.subheader("📄 Transcript")
     st.code(transcript, language="text")
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Classified Utterances
-    st.markdown("### 🧠 Classified Utterances")
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.divider()
+    st.subheader("🧠 Classified Utterances")
     st.dataframe(utterances, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Summary
-    st.markdown("### 📑 Summary")
-    st.markdown('<div class="summary-box">' + summary + '</div>', unsafe_allow_html=True)
+    if show_summary:
+        st.divider()
+        st.subheader("📑 Summary")
+        st.markdown(f'<div class="summary-box">{summary}</div>', unsafe_allow_html=True)
 
-    # Mermaid Diagram
-    st.markdown("### 🔄 Dialogue Flow Diagram")
-    st.markdown('<div class="section">', unsafe_allow_html=True)
-    render_mermaid(mermaid_diagram)
-    st.markdown('</div>', unsafe_allow_html=True)
+        pdf_buffer = generate_pdf(summary)
+        st.download_button("📥 Download Summary as PDF", data=pdf_buffer, file_name="summary.pdf", mime="application/pdf")
 
+    if show_mermaid:
+        st.divider()
+        st.subheader("🔄 Dialogue Flow")
+        render_mermaid(mermaid_diagram)
 else:
-    st.info("📥 Awaiting input. Upload a transcript file or paste text to begin.")
+    st.info("Awaiting transcript input. Upload a file or paste text, then click 'Process Transcript'.")

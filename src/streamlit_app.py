@@ -30,7 +30,7 @@ st.text("Created by Ravindra Wijenayake - for RGU DiSCoAI")
 st.markdown('''
     <style>
     body, .stApp {
-        background: #34def4;
+        background: #a2f5fb;
         font-family: 'Segoe UI', sans-serif;
     }
     .main-title {
@@ -141,7 +141,7 @@ if transcript.strip() and utterances is not None:
 
     # Summary
     st.markdown("### 📑 Summary")
-    st.markdown('<div class="section summary-box">', unsafe_allow_html=True)
+    st.markdown('<div class="section">', unsafe_allow_html=True)
     st.markdown(summary)
     st.markdown('</div>', unsafe_allow_html=True)
 

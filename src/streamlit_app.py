@@ -6,29 +6,29 @@ from main import generate_mermaid_diagram
 st.set_page_config(page_title="Dialogue Analysis Platform", layout="wide", page_icon="💬")
 st.markdown("""
     <style>
+        body, .stApp {background: #eaf4fb !important; padding-top: 0 !important;}
         .container {max-width: 900px; margin: 0 auto 40px auto; background: #fff; border-radius: 16px; box-shadow: 0 6px 32px rgba(44,62,80,0.10); padding: 36px 40px 40px 40px;}
         .stDataFrame {background: #fff; border-radius: 10px;}
-        .summary {background: #e8f7e4; padding: 22px 18px; margin-top: 32px; border-radius: 10px; box-shadow: 0 2px 8px rgba(44,62,80,0.06);}
-        .dialogue-box {background: #f9f9f9; border: 1px solid #e0e6ed; border-radius: 10px; padding: 18px; margin-bottom: 28px;}
+        .summary {background: #e3f2fd; padding: 22px 18px; margin-top: 32px; border-radius: 10px; box-shadow: 0 2px 8px rgba(44,62,80,0.06);}
+        .dialogue-box {background: #f4faff; border: 1px solid #b3d8f7; border-radius: 10px; padding: 18px; margin-bottom: 28px;}
         .confidence-high { color: #388e3c; font-weight: 700; }
         .confidence-medium { color: #fbc02d; font-weight: 700; }
         .confidence-low { color: #d32f2f; font-weight: 700; }
         .mermaid {background: #fff; border-radius: 10px; padding: 18px; margin-top: 12px; box-shadow: 0 2px 8px rgba(44,62,80,0.04);}
-        .stApp {padding-top: 0rem !important;}
-        .stButton>button {background: #2a4d69; color: #fff; border-radius: 6px; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; transition: background 0.2s;}
-        .stButton>button:hover {background: #1e3550;}
+        .stButton>button {background: #1976d2; color: #fff; border-radius: 6px; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; transition: background 0.2s; margin-right: 8px;}
+        .stButton>button:hover {background: #1565c0;}
         .stTextArea textarea {font-size: 1.1rem; border-radius: 6px;}
         .stFileUploader {margin-bottom: 10px;}
         .stDataFrame {margin-top: 18px;}
-        .stMarkdown h2 {color: #2a4d69;}
+        .stMarkdown h2 {color: #1976d2;}
         .stMarkdown h3 {color: #4b6584;}
-        .stMarkdown pre {background: #f4f8fb; border-radius: 6px;}
+        .stMarkdown pre {background: #eaf4fb; border-radius: 6px;}
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="container">', unsafe_allow_html=True)
 st.markdown("""
-# 💬 Dialogue Analysis Platform
+# 💬 Dialogue Analysis Platform for RGU DiSCoAI PhD Coding Task
 #### Created by Ravindra Wijenayake
 """, unsafe_allow_html=True)
 
@@ -36,7 +36,7 @@ with st.form("dialogue_form"):
     st.markdown("<b>Paste transcript or upload file:</b>", unsafe_allow_html=True)
     transcript = st.text_area("", height=180, key="transcript", placeholder="Paste your dialogue transcript here...")
     uploaded_file = st.file_uploader("Upload a transcript file", type=["txt"])
-    col1, col2 = st.columns([1,1])
+    col1, col2, _ = st.columns([1,1,6])
     with col1:
         submitted = st.form_submit_button("Analyse")
     with col2:

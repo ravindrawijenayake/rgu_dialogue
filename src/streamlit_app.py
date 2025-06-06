@@ -44,28 +44,24 @@ Upload a transcript file or paste your transcript below. The app will classify u
 """)
 st.divider()
 
-with st.form("transcript_form"):
-    col1, col2 = st.columns([2,1])
-    with col1:
+# --- UI Layout: Input Area with Process & Clear Buttons ---
+col1, col2 = st.columns([4,1])
+with col1:
+    with st.form("transcript_form", clear_on_submit=False):
         uploaded_file = st.file_uploader("Upload transcript file (UTF-8 text)", type=["txt"])
-    with col2:
-        clear_clicked = st.form_submit_button("Clear", use_container_width=True)
-    transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
-    submitted = st.form_submit_button("Process Transcript", use_container_width=True)
+        transcript_text = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200)
+        submitted = st.form_submit_button("Process Transcript", use_container_width=True)
+with col2:
+    clear_clicked = st.button("Clear", use_container_width=True)
 
 # --- Clear Button Functionality ---
-if 'clear_clicked' not in st.session_state:
-    st.session_state['clear_clicked'] = False
 if clear_clicked:
     st.session_state['transcript'] = ''
     st.session_state['uploaded_file'] = None
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    st.session_state['clear_clicked'] = True
     st.experimental_rerun()
-else:
-    st.session_state['clear_clicked'] = False
 
 # --- Process Transcript ---
 if submitted:

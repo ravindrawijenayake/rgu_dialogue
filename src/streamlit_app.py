@@ -18,6 +18,11 @@ with st.sidebar:
         index=0,
         key="mermaid_direction_radio"
     )
+    #st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
+    st.markdown(
+        '<p style="font-size: 0.8em; color: gray;">'
+        'Created by Ravindra Wijenayake-for RGU DiSCoAI'
+        '</p>')
 
 # === Custom CSS for colors and styling ===
 st.markdown('''
@@ -94,7 +99,7 @@ for key in default_keys:
         st.session_state[key] = '' if key != 'utterances' else None
 
 # === Title ===
-st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
+st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1>', unsafe_allow_html=True)
 st.markdown("Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.")
 
 # === Input Section ===
@@ -167,7 +172,13 @@ if submitted:
 transcript = st.session_state['transcript']
 utterances = st.session_state['utterances']
 summary = st.session_state['summary']
-mermaid_diagram = st.session_state['mermaid_diagram']
+
+# Regenerate Mermaid diagram dynamically based on current mermaid_direction
+mermaid_diagram = ''
+if utterances is not None:
+    mermaid_dir = mermaid_direction.split()[0]  # TD or LR
+    mermaid_diagram = generate_mermaid_diagram(utterances, direction=mermaid_dir)
+    st.session_state['mermaid_diagram'] = mermaid_diagram  # Update session state too
 
 if transcript.strip() and utterances is not None:
     st.markdown('<div class="section-header">Output</div>', unsafe_allow_html=True)

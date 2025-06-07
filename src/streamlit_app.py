@@ -125,10 +125,15 @@ with st.form("transcript_form", clear_on_submit=False):
     with col2:
         clear_clicked = st.form_submit_button("🗑️ Clear All", help="Clear all inputs and outputs", kwargs=None, type="secondary", on_click=clear_all)
 
-# Handle clear rerun (only once)
-if st.session_state.get('clear_flag', False):
+# === Handle clear rerun flag early ===
+if 'clear_flag' in st.session_state and st.session_state['clear_flag']:
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]  # safely clear all session state
     st.session_state['clear_flag'] = False
     st.experimental_rerun()
+st.session_state['clear_flag'] = True
+st.stop()  # Stop current script to avoid double processing
+
 
 # === Process transcript ===
 if submitted:

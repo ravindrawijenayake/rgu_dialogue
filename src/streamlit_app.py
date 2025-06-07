@@ -131,8 +131,13 @@ if 'clear_flag' in st.session_state and st.session_state['clear_flag']:
         del st.session_state[key]  # safely clear all session state
     st.session_state['clear_flag'] = False
     st.experimental_rerun()
+
 st.session_state['clear_flag'] = True
 st.stop()  # Stop current script to avoid double processing
+
+if start_over_clicked:
+    st.session_state['clear_flag'] = True
+    st.stop()
 
 
 # === Process transcript ===

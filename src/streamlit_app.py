@@ -18,8 +18,8 @@ with st.sidebar:
         index=0,
         key="mermaid_direction_radio"
     )
-    #st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
-    st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
+    st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
+    #st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
 
 # === Custom CSS for colors and styling ===
 st.markdown('''

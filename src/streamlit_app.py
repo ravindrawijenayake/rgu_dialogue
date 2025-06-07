@@ -20,7 +20,7 @@ with st.sidebar:
     )
     #st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
     st.markdown(
-        '<p style="font-size: 0.8em; color: gray;">'
+        '<p style="text-align: center; color: #1B2845; font-weight: bold;">'
         'Created by Ravindra Wijenayake-for RGU DiSCoAI'
         '</p>')
 

@@ -6,3 +6,4 @@ streamlit-mermaid
 reportlab
 pandas
 jinja2
+#

@@ -116,7 +116,7 @@ st.markdown("Upload a transcript file or paste your transcript below. The platfo
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    # Use file_uploader_key to allow resetting via session_state
+    # Use file_uploader_key to allow resetting via session_state.
     uploaded_file = st.file_uploader('Upload transcript file (UTF-8 text)', type=["txt"], key=st.session_state['file_uploader_key'])
     transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
     col1, col2 = st.columns([1,1])

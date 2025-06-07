@@ -19,10 +19,7 @@ with st.sidebar:
         key="mermaid_direction_radio"
     )
     #st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
-    st.markdown(
-        '<p style="text-align: center; color: #1B2845; font-weight: bold;">'
-        'Created by Ravindra Wijenayake-for RGU DiSCoAI'
-        '</p>')
+    st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
 
 # === Custom CSS for colors and styling ===
 st.markdown('''

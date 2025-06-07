@@ -31,13 +31,13 @@ body { background: #021418; }
     background-color: #2d16df;
 }
 .stButton>button.clear-btn {
-    background-color: #615fd9; color: white; border-radius: 6px; font-weight: bold;
+    background-color: #7aee1b; color: white; border-radius: 6px; font-weight: bold;
 }
 .stButton>button.clear-btn:hover {
     background-color: #d6718a;
 }
 .stTextArea textarea, .stFileUploader, .stDataFrame {
-    background: #78b3f2; border-radius: 8px; padding: 5px;
+    background: #e6f2ff; border-radius: 8px; padding: 5px;
 }
 .summary-box {
     background-color: #f0f8ff; border: 2px solid #8684f5; border-radius: 8px;

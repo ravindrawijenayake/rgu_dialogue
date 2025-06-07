@@ -88,21 +88,10 @@ def generate_pdf(summary_text):
     return buffer
 
 # === Initialize session state keys if missing ===
-default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'clear_flag']
+default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']
 for key in default_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key != 'utterances' else None
-
-# === Clear callback ===
-def clear_all():
-    # Clear all except uploaded_file (which is special, so clear that too by resetting key)
-    st.session_state['transcript'] = ''
-    st.session_state['utterances'] = None
-    st.session_state['summary'] = ''
-    st.session_state['mermaid_diagram'] = ''
-    st.session_state['uploaded_file'] = None
-    # Set flag to trigger rerun
-    st.session_state['clear_flag'] = True
 
 # === Title ===
 st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
@@ -112,18 +101,34 @@ st.markdown("Upload a transcript file or paste your transcript below. The app wi
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    # Use key "uploaded_file" to allow resetting via session_state
     uploaded_file = st.file_uploader('Upload transcript file (UTF-8 text)', type=["txt"], key="uploaded_file")
     transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
-    col1, col2 = st.columns([1,1])
+    
+    col1, col2, col3 = st.columns([1,1,1])
     with col1:
-        submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary", kwargs=None, type="primary")
+        submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary")
     with col2:
-        clear_clicked = st.form_submit_button("🗑️ Clear All", help="Clear all inputs and outputs", kwargs=None, type="secondary", on_click=clear_all)
+        clear_clicked = st.form_submit_button("🗑️ Clear Output", help="Clear outputs but keep inputs")
+    with col3:
+        start_over_clicked = st.form_submit_button("🔄 Start Over", help="Reset all inputs and outputs including file upload")
 
-# Handle clear rerun (only once)
-if st.session_state.get('clear_flag', False):
-    st.session_state['clear_flag'] = False
+# === Clear and Start Over functionality ===
+if clear_clicked:
+    # Clear outputs only but keep inputs
+    for key in ['utterances', 'summary', 'mermaid_diagram']:
+        st.session_state[key] = '' if key != 'utterances' else None
+    st.experimental_rerun()
+
+if start_over_clicked:
+    # Reset all state including uploaded file and transcript input
+    for key in default_keys:
+        if key == 'utterances':
+            st.session_state[key] = None
+        else:
+            st.session_state[key] = ''
+    # Explicitly delete uploaded_file from session state to clear uploader widget
+    if 'uploaded_file' in st.session_state:
+        del st.session_state['uploaded_file']
     st.experimental_rerun()
 
 # === Process transcript ===
@@ -162,13 +167,7 @@ if submitted:
 transcript = st.session_state['transcript']
 utterances = st.session_state['utterances']
 summary = st.session_state['summary']
-
-# Regenerate Mermaid diagram dynamically based on current mermaid_direction
-mermaid_diagram = ''
-if utterances is not None:
-    mermaid_dir = mermaid_direction.split()[0]  # TD or LR
-    mermaid_diagram = generate_mermaid_diagram(utterances, direction=mermaid_dir)
-    st.session_state['mermaid_diagram'] = mermaid_diagram  # Update session state too
+mermaid_diagram = st.session_state['mermaid_diagram']
 
 if transcript.strip() and utterances is not None:
     st.markdown('<div class="section-header">Output</div>', unsafe_allow_html=True)

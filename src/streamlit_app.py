@@ -37,7 +37,7 @@ body { background: #021418; }
     background-color: #d6718a;
 }
 .stTextArea textarea, .stFileUploader, .stDataFrame {
-    background: #e6f2ff; border-radius: 8px; padding: 5px;
+    background: #78b3f2; border-radius: 8px; padding: 5px;
 }
 .summary-box {
     background-color: #f0f8ff; border: 2px solid #8684f5; border-radius: 8px;

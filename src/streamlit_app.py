@@ -18,8 +18,7 @@ with st.sidebar:
         index=0,
         key="mermaid_direction_radio"
     )
-    st.markdown('<h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>')
-    #st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
+    st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
 
 # === Custom CSS for colors and styling ===
 st.markdown('''
@@ -104,8 +103,7 @@ st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_h
 
 with st.form("transcript_form", clear_on_submit=False):
     uploaded_file = st.file_uploader('Upload transcript file (UTF-8 text)', type=["txt"], key="uploaded_file")
-    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
-    
+    transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript")
     col1, col2, col3 = st.columns([1,1,1])
     with col1:
         submitted = st.form_submit_button("🔍 Process Transcript", help="Classify utterances and generate summary")
@@ -117,18 +115,18 @@ with st.form("transcript_form", clear_on_submit=False):
 # === Clear and Start Over functionality ===
 if clear_clicked:
     # Clear outputs only but keep inputs
-    for key in ['utterances', 'summary', 'mermaid_diagram']:
-        st.session_state[key] = '' if key != 'utterances' else None
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = ''
+    st.session_state['mermaid_diagram'] = ''
+    # Do NOT touch transcript or uploaded_file
     st.experimental_rerun()
 
 if start_over_clicked:
     # Reset all state including uploaded file and transcript input
-    for key in default_keys:
-        if key == 'utterances':
-            st.session_state[key] = None
-        else:
-            st.session_state[key] = ''
-    # Explicitly delete uploaded_file from session state to clear uploader widget
+    st.session_state['transcript'] = ''
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = ''
+    st.session_state['mermaid_diagram'] = ''
     if 'uploaded_file' in st.session_state:
         del st.session_state['uploaded_file']
     st.experimental_rerun()

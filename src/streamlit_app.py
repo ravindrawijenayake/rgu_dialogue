@@ -110,7 +110,7 @@ def clear_all():
 
 # === Title ===
 st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
-st.markdown("Upload a transcript file or paste your transcript below. The app will classify utterances, generate a summary, and visualize the dialogue flow.")
+st.markdown("Upload a transcript file or paste your transcript below. The platform will classify utterances, generate a summary, and visualize the dialogue flow.")
 
 # === Input Section ===
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)

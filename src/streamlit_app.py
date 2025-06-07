@@ -94,15 +94,15 @@ for key in default_keys:
         st.session_state[key] = '' if key != 'utterances' else None
 
 # === Clear callback ===
-def clear_all():
+#def clear_all():
     # Clear all except uploaded_file (which is special, so clear that too by resetting key)
-    st.session_state['transcript'] = ''
-    st.session_state['utterances'] = None
-    st.session_state['summary'] = ''
-    st.session_state['mermaid_diagram'] = ''
-    st.session_state['uploaded_file'] = None
+    #st.session_state['transcript'] = ''
+    #st.session_state['utterances'] = None
+    #st.session_state['summary'] = ''
+    #st.session_state['mermaid_diagram'] = ''
+    #st.session_state['uploaded_file'] = None
     # Set flag to trigger rerun
-    st.session_state['clear_flag'] = True
+    #st.session_state['clear_flag'] = True
 
 # === Title ===
 st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)

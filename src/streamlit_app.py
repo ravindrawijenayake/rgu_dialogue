@@ -152,8 +152,7 @@ if submitted:
             mermaid_dir = mermaid_direction.split()[0]  # "TD" or "LR"
             mermaid_diagram = generate_mermaid_diagram(utterances, direction=mermaid_dir)
 
-            # Update session state only after successful processing
-            st.session_state['transcript'] = transcript
+            # Only update outputs in session state, not transcript input
             st.session_state['utterances'] = utterances
             st.session_state['summary'] = summary
             st.session_state['mermaid_diagram'] = mermaid_diagram

@@ -3,3 +3,6 @@ google-generativeai<=0.8.5
 flask
 streamlit
 streamlit-mermaid
+reportlab
+pandas
+jinja2

@@ -18,7 +18,7 @@ with st.sidebar:
         index=0,
         key="mermaid_direction_radio"
     )
-    st.markdown('Created by Ravindra Wijenayake-for RGU DiSCoAI')
+    st.subheader('Created by Ravindra Wijenayake-for RGU DiSCoAI')
 
 # === Custom CSS for colors and styling ===
 st.markdown('''
@@ -89,7 +89,7 @@ def generate_pdf(summary_text):
     return buffer
 
 # === Initialize session state keys if missing ===
-default_keys = ['transcript', 'utterances', 'summary', 'mermaid_diagram']
+default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']
 for key in default_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key != 'utterances' else None
@@ -127,7 +127,8 @@ if start_over_clicked:
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    # Do NOT touch or delete st.session_state['uploaded_file']
+    if 'uploaded_file' in st.session_state:
+        del st.session_state['uploaded_file']
     st.experimental_rerun()
 
 # === Process transcript ===
@@ -152,7 +153,7 @@ if submitted:
             mermaid_dir = mermaid_direction.split()[0]  # "TD" or "LR"
             mermaid_diagram = generate_mermaid_diagram(utterances, direction=mermaid_dir)
 
-            # Update outputs and transcript in session state
+            # Update session state only after successful processing
             st.session_state['transcript'] = transcript
             st.session_state['utterances'] = utterances
             st.session_state['summary'] = summary

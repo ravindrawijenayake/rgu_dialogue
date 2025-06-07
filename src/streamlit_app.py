@@ -89,7 +89,7 @@ def generate_pdf(summary_text):
     return buffer
 
 # === Initialize session state keys if missing ===
-default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram']
+default_keys = ['transcript', 'utterances', 'summary', 'mermaid_diagram']
 for key in default_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key != 'utterances' else None
@@ -127,8 +127,7 @@ if start_over_clicked:
     st.session_state['utterances'] = None
     st.session_state['summary'] = ''
     st.session_state['mermaid_diagram'] = ''
-    if 'uploaded_file' in st.session_state:
-        del st.session_state['uploaded_file']
+    # Do NOT touch or delete st.session_state['uploaded_file']
     st.experimental_rerun()
 
 # === Process transcript ===

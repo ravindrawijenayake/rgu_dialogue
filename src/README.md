@@ -39,7 +39,7 @@ Under “System variables”, click “New…”.
 - Set the variable name as `GOOGLE_API_KEY` and the value as your Gemini API key.
 - Click OK and restart your terminal.
 
-**macOS/Linux:**
+**MacOS/Linux:**
 - Open a terminal.
 - Run `export GOOGLE_API_KEY='your_api_key'`.
 - To make this permanent, add the above line to your `~/.bashrc`, `~/.zshrc`, or `~/.profile`.

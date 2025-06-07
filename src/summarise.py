@@ -85,7 +85,7 @@ def generate_summary(transcript):
     if not api_key:
         try:
             import streamlit as st
-            # Only use st.secrets if running under Streamlit (check if running in Streamlit context)
+            # Only use st.secrets if running under Streamlit (Check if running in Streamlit context)
             if hasattr(st, '_is_running_with_streamlit') and st._is_running_with_streamlit:
                 api_key = st.secrets["GOOGLE_API_KEY"]
         except Exception:

@@ -53,7 +53,7 @@ def classify_function(utterance):
         if any(q in utt for q in ['why', 'what', 'how', 'when', 'where', 'who', 'is it', 'are you', 'do you', 'does it', 'can it', 'could it', 'would it', 'will it', 'shall we', 'may I', 'might I']):
             return 'Question'
         return 'Query'
-    # Commitment (ensure this check comes before Disagreement and Agreement)
+    # Commitment (Ensure this check comes before Disagreement and Agreement)
     negative_starts = [
         "i'm not", "i am not", "i will not", "i won't", "i can't", "i shouldn't", "i couldn't", "i wouldn't", "i might", "i may", "i hope", "i plan", "i want", "i wish", "i would like", "i intend", "i expect", "i think", "i don't", "i guess", "i suppose", "i doubt", "i wonder"
     ]

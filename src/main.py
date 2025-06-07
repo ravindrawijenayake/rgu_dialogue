@@ -36,5 +36,5 @@ def index():
     return render_template('index.html', transcript=transcript, utterances=utterances, summary=summary, mermaid_diagram=mermaid_diagram)
 
 if __name__ == '__main__':
-    # Only run the Flask development server if executed directly (not when imported by Streamlit)
+    # Only run the Flask development server if executed directly (Not when imported by Streamlit)
     app.run(debug=True)

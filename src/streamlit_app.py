@@ -88,21 +88,25 @@ def generate_pdf(summary_text):
     return buffer
 
 # === Initialize session state keys if missing ===
-default_keys = ['transcript', 'uploaded_file', 'utterances', 'summary', 'mermaid_diagram', 'clear_flag']
+default_keys = ['transcript', 'utterances', 'summary', 'mermaid_diagram', 'clear_flag']
 for key in default_keys:
     if key not in st.session_state:
         st.session_state[key] = '' if key != 'utterances' else None
+# Add a dummy key for file_uploader reset
+if 'file_uploader_key' not in st.session_state:
+    st.session_state['file_uploader_key'] = 0
 
 # === Clear callback ===
-#def clear_all():
-    # Clear all except uploaded_file (which is special, so clear that too by resetting key)
-    #st.session_state['transcript'] = ''
-    #st.session_state['utterances'] = None
-    #st.session_state['summary'] = ''
-    #st.session_state['mermaid_diagram'] = ''
-    #st.session_state['uploaded_file'] = None
+def clear_all():
+    # Clear all input and output session state keys
+    st.session_state['transcript'] = ''
+    st.session_state['utterances'] = None
+    st.session_state['summary'] = ''
+    st.session_state['mermaid_diagram'] = ''
+    st.session_state['transcript_text_area'] = ''  # Explicitly clear text area
+    st.session_state['file_uploader_key'] += 1  # Force file_uploader to reset
     # Set flag to trigger rerun
-    #st.session_state['clear_flag'] = True
+    st.session_state['clear_flag'] = True
 
 # === Title ===
 st.markdown('<h1>🗣️ Dialogue Analysis Platform</h1><br><h3>Created by Ravindra Wijenayake-for RGU DiSCoAI</h3>', unsafe_allow_html=True)
@@ -112,8 +116,8 @@ st.markdown("Upload a transcript file or paste your transcript below. The app wi
 st.markdown('<div class="section-header">Input Transcript</div>', unsafe_allow_html=True)
 
 with st.form("transcript_form", clear_on_submit=False):
-    # Use key "uploaded_file" to allow resetting via session_state
-    uploaded_file = st.file_uploader('Upload transcript file (UTF-8 text)', type=["txt"], key="uploaded_file")
+    # Use file_uploader_key to allow resetting via session_state
+    uploaded_file = st.file_uploader('Upload transcript file (UTF-8 text)', type=["txt"], key=st.session_state['file_uploader_key'])
     transcript_input = st.text_area("Or paste transcript here", value=st.session_state['transcript'], height=200, key="transcript_text_area")
     col1, col2 = st.columns([1,1])
     with col1:
